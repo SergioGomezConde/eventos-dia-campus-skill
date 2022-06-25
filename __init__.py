@@ -100,7 +100,7 @@ class EventosDiaCampus(MycroftSkill):
 
         # Comprobacion de que la fecha introducida aun no ha pasado
         if (numero_mes < date.today().month) or ((numero_mes == date.today().month) and (numero_dia < date.today().day)):
-            self.speak("La fecha introducida ya ha pasado")
+            self.speak("El " + fecha + " ya ha pasado")
 
         # Comprobacion de si la fecha introducida es el dia actual
         elif ((numero_dia == date.today().day) and (numero_mes == date.today().month) and (numero_anio == date.today().year)):
