@@ -182,8 +182,9 @@ class EventosDiaCampus(MycroftSkill):
             # Lectura de la informacion del fichero JSON
             with open(ficheroJSON) as ficheroEventos:
                 data = json.load(ficheroEventos)
+                self.speak("El " + event['fecha'] + " tienes " + len(data['eventos']) + " eventos")
                 for event in data['eventos']:
-                    self.speak("El " + event['fecha'] + " a las " + event['hora'] + " tienes " + event['nombre'])
+                    self.speak("A las " + event['hora'] + " tienes " + event['nombre'])
 
             # # Obtencion del numero de eventos del dia
             # numero_eventos = len(eventos_dia)
