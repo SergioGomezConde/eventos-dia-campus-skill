@@ -125,6 +125,9 @@ class EventosDiaCampus(MycroftSkill):
                     " » ")[0])
                 })
 
+            with open(ficheroJSON, 'w') as ficheroDatos:
+                json.dump(informacion, ficheroDatos, indent=4)
+
             # Obtencion del numero de eventos del dia
             numero_eventos = len(eventos_dia)
 
