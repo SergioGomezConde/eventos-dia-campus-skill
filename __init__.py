@@ -6,7 +6,7 @@ from datetime import datetime
 from datetime import date
 
 # Fichero JSON donde almacenar la informacion
-ficheroJSON = "~/data.json"
+ficheroJSON = "home/serggom/data.json"
 informacion = {'asignaturas': [], 'usuario': [], 'eventos': [], 'mensajes': []}
 
 
