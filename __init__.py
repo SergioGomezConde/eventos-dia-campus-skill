@@ -105,6 +105,8 @@ class EventosDiaCampus(MycroftSkill):
         segundos = (datetime(numero_anio, numero_mes, numero_dia,
                     0, 0) - datetime(1970, 1, 1)).total_seconds()
 
+        fecha_a_buscar = fecha_a_buscar
+
         # Comprobacion de que la fecha introducida aun no ha pasado
         if (numero_mes < date.today().month) or ((numero_mes == date.today().month) and (numero_dia < date.today().day)):
             self.speak("El " + fecha + " ya ha pasado")
@@ -115,7 +117,7 @@ class EventosDiaCampus(MycroftSkill):
 
             # Acceso al dia del que buscar los eventos
             driver.get(
-                'https://campusvirtual.uva.es/calendar/view.php?view=day&time=' + str(segundos))
+                'https://campusvirtual.uva.es/calendar/view.php?view=day')
 
             # Obtencion de la lista de eventos del dia
             eventos_dia = driver.find_elements(by=By.CLASS_NAME, value='event')
@@ -124,7 +126,7 @@ class EventosDiaCampus(MycroftSkill):
             for evento in eventos_dia:
                 informacion['eventos'].append({
                     'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio),
+                    'fecha': fecha_a_buscar,
                     'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
                     " » ")[0])
                 })
@@ -171,7 +173,7 @@ class EventosDiaCampus(MycroftSkill):
             for evento in eventos_dia:
                 informacion['eventos'].append({
                     'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio),
+                    'fecha': fecha_a_buscar,
                     'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
                     " » ")[0])
                 })
@@ -183,13 +185,17 @@ class EventosDiaCampus(MycroftSkill):
             with open(ficheroJSON) as ficheroEventos:
                 data = json.load(ficheroEventos)
 
-                if len(data['eventos']) == 0:
-                    self.speak("El " + str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio) + " no tienes ningún evento")
-
-                else:
-                    self.speak("El " + str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio) + " tienes " + str(len(data['eventos'])) + " eventos")
-                    for event in data['eventos']:
+                for event in data['eventos']:
+                    if event['fecha'] == fecha_a_buscar:
                         self.speak("A las " + event['hora'] + " tienes " + event['nombre'])
+
+                # if len(data['eventos']) == 0:
+                #     self.speak("El " + fecha_a_buscar + " no tienes ningún evento")
+
+                # else:
+                #     self.speak("El " + fecha_a_buscar + " tienes " + str(len(data['eventos'])) + " eventos")
+                #     for event in data['eventos']:
+                #         self.speak("A las " + event['hora'] + " tienes " + event['nombre'])
 
             # # Obtencion del numero de eventos del dia
             # numero_eventos = len(eventos_dia)
