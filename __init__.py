@@ -105,7 +105,7 @@ class EventosDiaCampus(MycroftSkill):
         segundos = (datetime(numero_anio, numero_mes, numero_dia,
                     0, 0) - datetime(1970, 1, 1)).total_seconds()
 
-        fecha_a_buscar = fecha_a_buscar
+        fecha_a_buscar = str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio)
 
         # Comprobacion de que la fecha introducida aun no ha pasado
         if (numero_mes < date.today().month) or ((numero_mes == date.today().month) and (numero_dia < date.today().day)):
