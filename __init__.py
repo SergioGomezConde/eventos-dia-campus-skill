@@ -5,6 +5,10 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 from datetime import date
 
+# Fichero JSON donde almacenar la informacion
+ficheroJSON = "~/data.json"
+informacion = {'asignaturas': [], 'usuario': [], 'eventos': [], 'mensajes': []}
+
 
 def inicio_sesion(self):
     # Datos de acceso fijos
@@ -112,6 +116,12 @@ class EventosDiaCampus(MycroftSkill):
 
             # Obtencion de la lista de eventos del dia
             eventos_dia = driver.find_elements(by=By.CLASS_NAME, value='event')
+            for evento in eventos_dia:
+                informacion['eventos'].append({
+                    'nombre': evento_dia.find_element(by=By.TAG_NAME, value='h3').text,
+                    'fecha': formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+                    " » ")[0])
+                })
 
             # Obtencion del numero de eventos del dia
             numero_eventos = len(eventos_dia)
