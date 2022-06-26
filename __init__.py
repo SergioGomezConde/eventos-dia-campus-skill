@@ -182,7 +182,7 @@ class EventosDiaCampus(MycroftSkill):
             # Lectura de la informacion del fichero JSON
             with open(ficheroJSON) as ficheroEventos:
                 data = json.load(ficheroEventos)
-                self.speak("El " + str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio) + " tienes " + len(data['eventos']) + " eventos")
+                self.speak("El " + str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio) + " tienes " + str(len(data['eventos'])) + " eventos")
                 for event in data['eventos']:
                     self.speak("A las " + event['hora'] + " tienes " + event['nombre'])
 
