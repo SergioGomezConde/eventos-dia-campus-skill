@@ -60,7 +60,7 @@ def mesANumero(x):  # Funcion que devuelve el numero de mes introducido de maner
 # Funcion para dar formato a una fecha y devolverla en la respuesta
 def formatear_fecha(fecha_a_formatear):
     fecha_separada = fecha_a_formatear.split(", ")
-    if(fecha_separada[0] == "Mañana"):
+    if(fecha_separada[0] == "Mañana" or fecha_separada[0] == "Hoy"):
         hora = fecha_separada[1]
     else:
         hora = fecha_separada[2]
