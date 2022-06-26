@@ -1,4 +1,5 @@
 import json
+from posixpath import split
 
 from mycroft import MycroftSkill, intent_file_handler
 from selenium import webdriver
@@ -123,7 +124,8 @@ class EventosDiaCampus(MycroftSkill):
             for evento in eventos_dia:
                 informacion['eventos'].append({
                     'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+                    'fecha': numero_dia + " de " + dia_response.split(" ")[3] + " del " + numero_anio,
+                    'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
                     " » ")[0])
                 })
 
@@ -134,7 +136,7 @@ class EventosDiaCampus(MycroftSkill):
             with open(ficheroJSON) as ficheroEventos:
                 data = json.load(ficheroEventos)
                 for event in data['eventos']:
-                    self.speak("A las " + event['fecha'] + " tienes " + event['nombre'])
+                    self.speak("Hoy a las " + event['fecha'] + " tienes " + event['nombre'])
 
             # # Obtencion del numero de eventos del dia
             # numero_eventos = len(eventos_dia)
@@ -165,24 +167,42 @@ class EventosDiaCampus(MycroftSkill):
             # Obtencion de la lista de eventos del dia
             eventos_dia = driver.find_elements(by=By.CLASS_NAME, value='event')
 
-            # Obtencion del numero de eventos del dia
-            numero_eventos = len(eventos_dia)
+            # Almacenamiento de la informacion en el fichero JSON
+            for evento in eventos_dia:
+                informacion['eventos'].append({
+                    'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
+                    'fecha': numero_dia + " de " + dia_response.split(" ")[3] + " del " + numero_anio,
+                    'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+                    " » ")[0])
+                })
 
-            # Respuesta con los eventos del dia
-            if numero_eventos == 0:
-                self.speak("El " + fecha + " no tienes ningun evento")
+            with open(ficheroJSON, 'w') as ficheroDatos:
+                json.dump(informacion, ficheroDatos, indent=4)
 
-            elif numero_eventos == 1:
-                self.speak_dialog('campus.dia.unevento', data={'dia': fecha})
-                evento_dia = eventos_dia[0]
-                self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-                    " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
-            else:
-                self.speak_dialog('campus.dia.eventos', data={
-                                  'dia': fecha, 'numero_eventos': numero_eventos})
-                for evento_dia in eventos_dia:
-                    self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-                        " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
+            # Lectura de la informacion del fichero JSON
+            with open(ficheroJSON) as ficheroEventos:
+                data = json.load(ficheroEventos)
+                for event in data['eventos']:
+                    self.speak("El " + event['fecha'] + " a las " + event['fecha'] + " tienes " + event['nombre'])
+
+            # # Obtencion del numero de eventos del dia
+            # numero_eventos = len(eventos_dia)
+
+            # # Respuesta con los eventos del dia
+            # if numero_eventos == 0:
+            #     self.speak("El " + fecha + " no tienes ningun evento")
+
+            # elif numero_eventos == 1:
+            #     self.speak_dialog('campus.dia.unevento', data={'dia': fecha})
+            #     evento_dia = eventos_dia[0]
+            #     self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+            #         " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
+            # else:
+            #     self.speak_dialog('campus.dia.eventos', data={
+            #                       'dia': fecha, 'numero_eventos': numero_eventos})
+            #     for evento_dia in eventos_dia:
+            #         self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+            #             " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
 
 
 def create_skill():
