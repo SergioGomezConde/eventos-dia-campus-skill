@@ -66,8 +66,8 @@ def formatear_fecha(fecha_a_formatear):
         hora = fecha_separada[1]
     else:
         hora = fecha_separada[2]
-    fecha_formateada = "A las " + hora
-    return fecha_formateada
+
+    return hora
 
 
 # Funcion que devuelve una lista con dia, mes y anio
@@ -119,7 +119,7 @@ class EventosDiaCampus(MycroftSkill):
             # Obtencion de la lista de eventos del dia
             eventos_dia = driver.find_elements(by=By.CLASS_NAME, value='event')
             
-            
+            # Almacenamiento de la informacion en el fichero JSON
             for evento in eventos_dia:
                 informacion['eventos'].append({
                     'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
@@ -130,24 +130,30 @@ class EventosDiaCampus(MycroftSkill):
             with open(ficheroJSON, 'w') as ficheroDatos:
                 json.dump(informacion, ficheroDatos, indent=4)
 
-            # Obtencion del numero de eventos del dia
-            numero_eventos = len(eventos_dia)
+            # Lectura de la informacion del fichero JSON
+            with open(ficheroJSON) as ficheroEventos:
+                data = json.load(ficheroEventos)
+                for event in data['eventos']:
+                    self.speak("A las " + event['fecha'] + " tienes " + event['nombre'])
 
-            # Respuesta con los eventos del dia
-            if numero_eventos == 0:
-                self.speak("Hoy no tienes ningun evento")
+            # # Obtencion del numero de eventos del dia
+            # numero_eventos = len(eventos_dia)
 
-            elif numero_eventos == 1:
-                self.speak_dialog('Hoy tienes un evento')
-                evento_dia = eventos_dia[0]
-                self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-                    " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
-            else:
-                self.speak_dialog('campus.dia.hoy.eventos', data={
-                                  'numero_eventos': numero_eventos})
-                for evento_dia in eventos_dia:
-                    self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-                        " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
+            # # Respuesta con los eventos del dia
+            # if numero_eventos == 0:
+            #     self.speak("Hoy no tienes ningun evento")
+
+            # elif numero_eventos == 1:
+            #     self.speak_dialog('Hoy tienes un evento')
+            #     evento_dia = eventos_dia[0]
+            #     self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+            #         " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
+            # else:
+            #     self.speak_dialog('campus.dia.hoy.eventos', data={
+            #                       'numero_eventos': numero_eventos})
+            #     for evento_dia in eventos_dia:
+            #         self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+            #             " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
 
         else:
             driver = inicio_sesion(self)
