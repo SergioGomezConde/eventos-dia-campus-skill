@@ -124,7 +124,7 @@ class EventosDiaCampus(MycroftSkill):
             for evento in eventos_dia:
                 informacion['eventos'].append({
                     'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': numero_dia + " de " + dia_response.split(" ")[3] + " del " + numero_anio,
+                    'fecha': str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio),
                     'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
                     " » ")[0])
                 })
@@ -171,7 +171,7 @@ class EventosDiaCampus(MycroftSkill):
             for evento in eventos_dia:
                 informacion['eventos'].append({
                     'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': numero_dia + " de " + dia_response.split(" ")[3] + " del " + numero_anio,
+                    'fecha': str(numero_dia) + " de " + dia_response.split(" ")[3] + " del " + str(numero_anio),
                     'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
                     " » ")[0])
                 })
