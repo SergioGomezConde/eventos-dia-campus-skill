@@ -116,10 +116,12 @@ class EventosDiaCampus(MycroftSkill):
 
             # Obtencion de la lista de eventos del dia
             eventos_dia = driver.find_elements(by=By.CLASS_NAME, value='event')
+            
+            
             for evento in eventos_dia:
                 informacion['eventos'].append({
-                    'nombre': evento_dia.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
+                    'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
+                    'fecha': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
                     " » ")[0])
                 })
 
