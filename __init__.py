@@ -82,14 +82,19 @@ class EventosDiaCampus(MycroftSkill):
                 # Lectura de la informacion del fichero JSON
                 with open(ficheroJSON) as ficheroEventos:
                     data = json.load(ficheroEventos)
+                    i = 0
                     for event in data['eventos']:
                         if event['fecha'] == fecha_a_buscar:
-                            hora = int(event['hora'].split(":")[0])
-                            minuto = int(event['hora'].split(":")[1])
+                            i = i + 1
 
-                            if (hora > now.hour) or ((hora == now.hour) and (minuto > now.minute)):
-                                self.speak("Hoy a las " + event['hora'] + " tienes " + event['nombre'])
+                    if i > 0:
+                        for event in data['eventos']:
+                            if event['fecha'] == fecha_a_buscar:
+                                hora = int(event['hora'].split(":")[0])
+                                minuto = int(event['hora'].split(":")[1])
 
+                                if (hora > now.hour) or ((hora == now.hour) and (minuto > now.minute)):
+                                    self.speak("Hoy a las " + event['hora'] + " tienes " + event['nombre'])
             else:
                 # Lectura de la informacion del fichero JSON
                 with open(ficheroJSON) as ficheroEventos:
