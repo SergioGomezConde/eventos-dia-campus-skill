@@ -27,8 +27,8 @@ def mes_a_numero(x):  # Funcion que devuelve el numero de mes introducido de man
 
 # Funcion que devuelve una lista con dia, mes y anio
 def formatear_fecha_introducida(dia_a_formatear):
-    dia_en_numero = str(dia_a_formatear).split(" ")[1]
-    mes_en_numero = mes_a_numero(str(dia_a_formatear).split(" ")[3])
+    dia_en_numero = str(dia_a_formatear).split(" ")[0]
+    mes_en_numero = mes_a_numero(str(dia_a_formatear).split(" ")[2])
     now = datetime.now()
     dia_separado = [dia_en_numero, mes_en_numero, str(now.year)]
 
