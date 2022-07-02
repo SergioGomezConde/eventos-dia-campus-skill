@@ -83,6 +83,32 @@ class EventosDiaCampus(MycroftSkill):
                 with open(ficheroJSON) as ficheroEventos:
                     data = json.load(ficheroEventos)
                     i = 0
+
+                    for event in data['eventos']:
+
+                        if event['fecha'] == fecha_a_buscar:
+                            i = i + 1
+
+                    if i > 0:
+
+                        for event in data['eventos']:
+
+                            if event['fecha'] == fecha_a_buscar:
+                                hora = int(event['hora'].split(":")[0])
+                                minuto = int(event['hora'].split(":")[1])
+
+                                if (hora > now.hour) or ((hora == now.hour) and (minuto > now.minute)):
+                                    self.speak("Hoy a las " + event['hora'] + " tienes " + event['nombre'])
+
+                    else:
+                        self.speak("Hoy no tienes ningún evento")
+
+            else:
+                # Lectura de la informacion del fichero JSON
+                with open(ficheroJSON) as ficheroEventos:
+                    data = json.load(ficheroEventos)
+                    i = 0
+
                     for event in data['eventos']:
                         if event['fecha'] == fecha_a_buscar:
                             i = i + 1
@@ -90,20 +116,10 @@ class EventosDiaCampus(MycroftSkill):
                     if i > 0:
                         for event in data['eventos']:
                             if event['fecha'] == fecha_a_buscar:
-                                hora = int(event['hora'].split(":")[0])
-                                minuto = int(event['hora'].split(":")[1])
+                                self.speak("El " + fecha + " a las " + event['hora'] + " tienes " + event['nombre'])
 
-                                if (hora > now.hour) or ((hora == now.hour) and (minuto > now.minute)):
-                                    self.speak("Hoy a las " + event['hora'] + " tienes " + event['nombre'])
-            else:
-                # Lectura de la informacion del fichero JSON
-                with open(ficheroJSON) as ficheroEventos:
-                    data = json.load(ficheroEventos)
-
-                    for event in data['eventos']:
-
-                        if event['fecha'] == fecha_a_buscar:
-                            self.speak("El " + fecha + " a las " + event['hora'] + " tienes " + event['nombre'])
+                    else:
+                        self.speak("El " + fecha + " no tienes ningún evento")
 
         else:
             self.speak("Lo siento, no dispongo de esa información")
