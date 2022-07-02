@@ -1,50 +1,15 @@
 import json
-from posixpath import split
+import os
+from datetime import datetime
 
 from mycroft import MycroftSkill, intent_file_handler
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from datetime import datetime
-from datetime import date
 
 # Fichero JSON donde almacenar la informacion
-ficheroJSON = "/home/serggom/data.json"
-informacion = {'asignaturas': [], 'usuario': [], 'eventos': [], 'mensajes': []}
+ficheroJSON = "/home/serggom/scraping/datos.json"
 
 
-def inicio_sesion(self):
-    # Datos de acceso fijos
-    usuario = 'e71180769r'
-    contrasena = 'p5irZ9Jm4@9C#6WUaE!z9%@V'
-
-    # Modo headless
-    options = Options()
-    options.headless = True
-    options.add_argument("--windows-size=1920,1200")
-
-    self.speak("Buscando la informacion...")
-
-    # Acceso a pagina
-    driver = webdriver.Chrome(options=options)
-    driver.get('https://campusvirtual.uva.es/login/index.php')
-
-    # Inicio de sesion
-    driver.find_element(by=By.NAME, value='adAS_username').send_keys(usuario)
-    driver.find_element(
-        by=By.NAME, value='adAS_password').send_keys(contrasena)
-    driver.find_element(by=By.NAME, value='adAS_submit').click()
-
-    # Aceptar cookies
-    driver.implicitly_wait(10)
-    driver.find_element(
-        by=By.XPATH, value='/html/body/div[1]/div/a[1]').click()
-
-    return driver
-
-
-def mesANumero(x):  # Funcion que devuelve el numero de mes introducido de manera escrita
-    return{
+def mes_a_numero(x):  # Funcion que devuelve el numero de mes introducido de manera escrita
+    return {
         'enero': "01",
         'febrero': "02",
         'marzo': "03",
@@ -60,23 +25,12 @@ def mesANumero(x):  # Funcion que devuelve el numero de mes introducido de maner
     }[x]
 
 
-# Funcion para dar formato a una fecha y devolverla en la respuesta
-def formatear_fecha(fecha_a_formatear):
-    fecha_separada = fecha_a_formatear.split(", ")
-    if(fecha_separada[0] == "Mañana" or fecha_separada[0] == "Hoy"):
-        hora = fecha_separada[1]
-    else:
-        hora = fecha_separada[2]
-
-    return hora
-
-
 # Funcion que devuelve una lista con dia, mes y anio
 def formatear_fecha_introducida(dia_a_formatear):
     dia_en_numero = str(dia_a_formatear).split(" ")[1]
-    mes_en_numero = mesANumero(str(dia_a_formatear).split(" ")[3])
-
-    dia_separado = [dia_en_numero, mes_en_numero, str(date.today().year)]
+    mes_en_numero = mes_a_numero(str(dia_a_formatear).split(" ")[3])
+    now = datetime.now()
+    dia_separado = [dia_en_numero, mes_en_numero, str(now.year)]
 
     return dia_separado
 
@@ -88,135 +42,58 @@ class EventosDiaCampus(MycroftSkill):
     @intent_file_handler('campus.dia.eventos.intent')
     def handle_campus_dia_eventos(self, message):
 
-        # Solicitud y obtencion del dia del que buscar los eventos
-        dia_response = self.get_response('solicitardia')
-        self.log.info(dia_response)
+        # Lectura de la informacion del fichero JSON
+        if os.path.exists(ficheroJSON):
+            now = datetime.now()
 
-        # Por defecto se toma el anio actual
-        fecha = str(dia_response).split("el ")[1] + " de " + str(date.today().year)
+            # Solicitud y obtencion del dia del que buscar los eventos
+            dia_response = self.get_response('solicitardia')
 
-        # Obtencion de los numeros de dia, mes y anio
-        dia_separado = formatear_fecha_introducida(dia_response)
-        numero_dia = int(dia_separado[0])
-        numero_mes = int(dia_separado[1])
-        numero_anio = int(dia_separado[2])
+            # Por defecto se toma el anio actual
+            fecha = str(dia_response).split("el ")[1] + " de " + str(now.year)
 
-        # Obtencion de la fecha en segundos desde epoch
-        segundos = (datetime(numero_anio, numero_mes, numero_dia,
-                    0, 0) - datetime(1970, 1, 1)).total_seconds()
+            # Obtencion de los numeros de dia, mes y anio
+            dia_separado = formatear_fecha_introducida(dia_response)
+            numero_dia = int(dia_separado[0])
+            numero_mes = int(dia_separado[1])
+            numero_anio = int(dia_separado[2])
 
-        fecha_a_buscar = str(numero_dia) + "/" + str(numero_mes) + "/" + str(numero_anio)
+            fecha_a_buscar = str(numero_dia) + "/" + str(numero_mes) + "/" + str(numero_anio)
+            self.speak(fecha_a_buscar)
 
-        # Comprobacion de que la fecha introducida aun no ha pasado
-        if (numero_mes < date.today().month) or ((numero_mes == date.today().month) and (numero_dia < date.today().day)):
-            self.speak("El " + fecha + " ya ha pasado")
+            # Comprobacion de que la fecha introducida aun no ha pasado
+            if (numero_mes < now.month) or (
+                    (numero_mes == now.month) and (numero_dia < now.day)):
+                self.speak("El " + fecha + " ya ha pasado")
 
-        # Comprobacion de si la fecha introducida es el dia actual
-        elif ((numero_dia == date.today().day) and (numero_mes == date.today().month) and (numero_anio == date.today().year)):
-            driver = inicio_sesion(self)
+            # Comprobacion de si la fecha introducida es el dia actual
+            elif ((numero_dia == now.day) and (numero_mes == now.month) and (
+                    numero_anio == now.year)):
 
-            # Acceso al dia del que buscar los eventos
-            driver.get(
-                'https://campusvirtual.uva.es/calendar/view.php?view=day')
+                # Lectura de la informacion del fichero JSON
+                with open(ficheroJSON) as ficheroEventos:
+                    data = json.load(ficheroEventos)
+                    for event in data['eventos']:
+                        if event['fecha'] == fecha_a_buscar:
+                            hora = int(event['hora'].split(":")[0])
+                            minuto = int(event['hora'].split(":")[1])
 
-            # Obtencion de la lista de eventos del dia
-            eventos_dia = driver.find_elements(by=By.CLASS_NAME, value='event')
-            
-            # Almacenamiento de la informacion en el fichero JSON
-            for evento in eventos_dia:
-                informacion['eventos'].append({
-                    'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': fecha_a_buscar,
-                    'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-                    " » ")[0])
-                })
+                            if (hora > now.hour) or ((hora == now.hour) and (minuto > now.minute)):
+                                self.speak("Hoy a las " + event['hora'] + " tienes " + event['nombre'])
 
-            with open(ficheroJSON, 'w') as ficheroDatos:
-                json.dump(informacion, ficheroDatos, indent=4)
+            else:
+                # Lectura de la informacion del fichero JSON
+                with open(ficheroJSON) as ficheroEventos:
+                    data = json.load(ficheroEventos)
 
-            # Lectura de la informacion del fichero JSON
-            with open(ficheroJSON) as ficheroEventos:
-                data = json.load(ficheroEventos)
-                for event in data['eventos']:
-                    self.speak("Hoy a las " + event['fecha'] + " tienes " + event['nombre'])
+                    for event in data['eventos']:
 
-            # # Obtencion del numero de eventos del dia
-            # numero_eventos = len(eventos_dia)
-
-            # # Respuesta con los eventos del dia
-            # if numero_eventos == 0:
-            #     self.speak("Hoy no tienes ningun evento")
-
-            # elif numero_eventos == 1:
-            #     self.speak_dialog('Hoy tienes un evento')
-            #     evento_dia = eventos_dia[0]
-            #     self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-            #         " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
-            # else:
-            #     self.speak_dialog('campus.dia.hoy.eventos', data={
-            #                       'numero_eventos': numero_eventos})
-            #     for evento_dia in eventos_dia:
-            #         self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-            #             " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
+                        if event['fecha'] == fecha_a_buscar:
+                            self.speak("Hoy a las " + event['hora'] + " tienes " + event['nombre'])
 
         else:
-            driver = inicio_sesion(self)
-
-            # Acceso al dia del que buscar los eventos
-            driver.get(
-                'https://campusvirtual.uva.es/calendar/view.php?view=day&time=' + str(segundos))
-
-            # Obtencion de la lista de eventos del dia
-            eventos_dia = driver.find_elements(by=By.CLASS_NAME, value='event')
-
-            # Almacenamiento de la informacion en el fichero JSON
-            for evento in eventos_dia:
-                informacion['eventos'].append({
-                    'nombre': evento.find_element(by=By.TAG_NAME, value='h3').text,
-                    'fecha': fecha_a_buscar,
-                    'hora': formatear_fecha(evento.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-                    " » ")[0])
-                })
-
-            with open(ficheroJSON, 'w') as ficheroDatos:
-                json.dump(informacion, ficheroDatos, indent=4)
-
-            # Lectura de la informacion del fichero JSON
-            with open(ficheroJSON) as ficheroEventos:
-                data = json.load(ficheroEventos)
-
-                for event in data['eventos']:
-                    if event['fecha'] == fecha_a_buscar:
-                        self.speak("A las " + event['hora'] + " tienes " + event['nombre'])
-
-                # if len(data['eventos']) == 0:
-                #     self.speak("El " + fecha_a_buscar + " no tienes ningún evento")
-
-                # else:
-                #     self.speak("El " + fecha_a_buscar + " tienes " + str(len(data['eventos'])) + " eventos")
-                #     for event in data['eventos']:
-                #         self.speak("A las " + event['hora'] + " tienes " + event['nombre'])
-
-            # # Obtencion del numero de eventos del dia
-            # numero_eventos = len(eventos_dia)
-
-            # # Respuesta con los eventos del dia
-            # if numero_eventos == 0:
-            #     self.speak("El " + fecha + " no tienes ningun evento")
-
-            # elif numero_eventos == 1:
-            #     self.speak_dialog('campus.dia.unevento', data={'dia': fecha})
-            #     evento_dia = eventos_dia[0]
-            #     self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-            #         " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
-            # else:
-            #     self.speak_dialog('campus.dia.eventos', data={
-            #                       'dia': fecha, 'numero_eventos': numero_eventos})
-            #     for evento_dia in eventos_dia:
-            #         self.speak(formatear_fecha(evento_dia.find_element(by=By.CLASS_NAME, value='col-11').text.split(
-            #             " » ")[0]) + " tienes " + evento_dia.find_element(by=By.TAG_NAME, value='h3').text)
+            self.speak("Lo siento, no dispongo de esa información")
 
 
 def create_skill():
     return EventosDiaCampus()
-
