@@ -120,6 +120,7 @@ class EventosDiaCampus(MycroftSkill):
 
                     else:
                         self.speak("El " + fecha + " no tienes ningún evento")
+                        self.speak(now.hour)
 
         else:
             self.speak("Lo siento, no dispongo de esa información")
