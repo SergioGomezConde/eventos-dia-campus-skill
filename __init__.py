@@ -42,20 +42,26 @@ class EventosDiaCampus(MycroftSkill):
     @intent_file_handler('campus.dia.eventos.intent')
     def handle_campus_dia_eventos(self, message):
 
-        intent = str(message.data.get('utterance')).split("el ")[1]
+        intent = str(message.data.get('utterance'))
+
+        if "dia" in intent:
+            fecha_introducida = intent.split("dia")
+
+        elif "día" in intent:
+            fecha_introducida = intent.split("día")
+
+        else:
+            fecha_introducida = intent.split("el ")[1]
 
         # Lectura de la informacion del fichero JSON
         if os.path.exists(ficheroJSON):
             now = datetime.now()
 
-            # Solicitud y obtencion del dia del que buscar los eventos
-            # dia_response = self.get_response('solicitardia')
-
             # Por defecto se toma el anio actual
             fecha = intent + " de " + str(now.year)
 
             # Obtencion de los numeros de dia, mes y anio
-            dia_separado = formatear_fecha_introducida(intent)
+            dia_separado = formatear_fecha_introducida(fecha_introducida)
             numero_dia = int(dia_separado[0])
             if numero_dia < 10:
                 numero_dia_string = "0" + str(numero_dia)
