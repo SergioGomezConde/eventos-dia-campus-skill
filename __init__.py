@@ -69,7 +69,6 @@ class EventosDiaCampus(MycroftSkill):
             numero_anio = int(dia_separado[2])
 
             fecha_a_buscar = numero_dia_string + "/" + numero_mes_string + "/" + str(numero_anio)
-            self.speak(fecha_a_buscar)
 
             # Comprobacion de que la fecha introducida aun no ha pasado
             if (numero_mes < now.month) or (
