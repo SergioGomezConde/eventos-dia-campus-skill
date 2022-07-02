@@ -45,10 +45,13 @@ class EventosDiaCampus(MycroftSkill):
         intent = str(message.data.get('utterance'))
 
         if "dia" in intent:
-            fecha_introducida = intent.split("dia")
+            fecha_introducida = intent.split("dia ")[1]
 
         elif "día" in intent:
-            fecha_introducida = intent.split("día")
+            fecha_introducida = intent.split("día ")[1]
+
+        elif " del " in intent:
+            fecha_introducida = intent.split("del ")[1]
 
         else:
             fecha_introducida = intent.split("el ")[1]
