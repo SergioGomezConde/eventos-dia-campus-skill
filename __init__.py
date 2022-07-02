@@ -42,6 +42,9 @@ class EventosDiaCampus(MycroftSkill):
     @intent_file_handler('campus.dia.eventos.intent')
     def handle_campus_dia_eventos(self, message):
 
+        stringe = self.get_intro_message()
+        self.speak(stringe)
+
         # Lectura de la informacion del fichero JSON
         if os.path.exists(ficheroJSON):
             now = datetime.now()
