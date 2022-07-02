@@ -55,10 +55,20 @@ class EventosDiaCampus(MycroftSkill):
             # Obtencion de los numeros de dia, mes y anio
             dia_separado = formatear_fecha_introducida(dia_response)
             numero_dia = int(dia_separado[0])
+            if numero_dia < 10:
+                numero_dia_string = "0" + str(numero_dia)
+            else:
+                numero_dia_string = str(numero_dia)
+
             numero_mes = int(dia_separado[1])
+            if numero_mes < 10:
+                numero_mes_string = "0" + str(numero_mes)
+            else:
+                numero_mes_string = str(numero_mes)
+
             numero_anio = int(dia_separado[2])
 
-            fecha_a_buscar = str(numero_dia) + "/" + str(numero_mes) + "/" + str(numero_anio)
+            fecha_a_buscar = numero_dia_string + "/" + numero_mes_string + "/" + str(numero_anio)
             self.speak(fecha_a_buscar)
 
             # Comprobacion de que la fecha introducida aun no ha pasado
