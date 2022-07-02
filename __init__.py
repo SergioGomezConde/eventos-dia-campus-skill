@@ -56,8 +56,6 @@ class EventosDiaCampus(MycroftSkill):
         else:
             fecha_introducida = intent.split("el ")[1]
 
-        self.speak(fecha_introducida)
-
         # Lectura de la informacion del fichero JSON
         if os.path.exists(ficheroJSON):
             now = datetime.now()
