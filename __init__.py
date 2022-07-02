@@ -104,6 +104,8 @@ class EventosDiaCampus(MycroftSkill):
                         self.speak("Hoy no tienes ningún evento")
 
             else:
+                now = datetime.now()
+                hora = now.hour
                 # Lectura de la informacion del fichero JSON
                 with open(ficheroJSON) as ficheroEventos:
                     data = json.load(ficheroEventos)
@@ -119,7 +121,7 @@ class EventosDiaCampus(MycroftSkill):
                                 self.speak("El " + fecha + " a las " + event['hora'] + " tienes " + event['nombre'])
 
                     else:
-                        self.speak("El " + fecha + " no tienes ningún evento")
+                        self.speak("El " + fecha + " no tienes ningún evento " + hora)
 
         else:
             self.speak("Lo siento, no dispongo de esa información")
