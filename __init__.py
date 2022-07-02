@@ -131,7 +131,7 @@ class EventosDiaCampus(MycroftSkill):
                     if i > 0:
                         for event in data['eventos']:
                             if event['fecha'] == fecha_a_buscar:
-                                self.speak("El " + fecha + " a las " + event['hora'] + " tienes " + event['nombre'])
+                                self.speak("El " + fecha_introducida + " a las " + event['hora'] + " tienes " + event['nombre'])
 
                     else:
                         self.speak("El " + fecha + " no tienes ningún evento")
