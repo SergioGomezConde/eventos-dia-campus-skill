@@ -43,7 +43,6 @@ class EventosDiaCampus(MycroftSkill):
     def handle_campus_dia_eventos(self, message):
 
         intent = str(message.data.get('utterance')).split("el ")[1]
-        self.speak(intent)
 
         # Lectura de la informacion del fichero JSON
         if os.path.exists(ficheroJSON):
